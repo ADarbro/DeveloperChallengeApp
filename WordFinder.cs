@@ -1,4 +1,6 @@
-﻿namespace DeveloperChallengeApp
+﻿using System.Collections.Concurrent;
+
+namespace DeveloperChallengeApp
 {
     public class WordFinder
     {
@@ -11,6 +13,7 @@
         /// Represents the matrix of letters to find words within.
         /// </summary>
         private List<string> Matrix;
+
         public WordFinder(IEnumerable<string> matrix)
         {
             Matrix = matrix.ToList().ConvertAll(d => d.ToLower());
@@ -18,35 +21,37 @@
 
         /// <summary>
         /// Finds the top ten words within the matrix of the list of words passed. 
-        /// Time Complexity : Time complexity: (RowHeight * ColumnHeight * Number of Strings * 2 * Length of Strings)
-        /// All the cells will be visited and traversed in two directions, the height and width of the matrix so time complexity is O(R * C) for each string.
+        /// Time Complexity : Time complexity: (RowHeight * ColumnHeight * 2 * Length of Strings)
+        /// All the cells will be visited and traversed in two directions, the height and width of the matrix so time complexity is O(R * C)
         /// </summary>
         /// <param name="wordstream">The list of words to find within the matrix</param>
         /// <returns></returns>
         public IEnumerable<string> Find(IEnumerable<string> wordstream)
         {
             IEnumerable<string> distinctWords = wordstream.ToList().ConvertAll(d => d.ToLower()).Distinct();
-            List<KeyValuePair<string, int>> foundWords = new List<KeyValuePair<string, int>>();
-            foreach (var word in distinctWords)
+            List<Tuple<string, int>> WordAndCount = FindWords(distinctWords);
+            return WordAndCount.OrderByDescending(t => t.Item2).Select(t => t.Item1).Take(LISTSIZE);
+        }
+
+        /// <summary>
+        /// Finds all the words in the matrix from a particular list.
+        /// </summary>
+        /// <param name="words"> the list of words to attempt to find in the matrix</param>
+        /// <returns>A list of tuples of found words and the number of times they appear</returns>
+        private List<Tuple<string, int>> FindWords(IEnumerable<string> words)
+        {
+            var foundWords = new ConcurrentBag<Tuple<string,int>>();
+
+            Parallel.ForEach(words, word =>
             {
-                int count = FindCount(word);
-                if (count == 0)
-                    continue;
-                if (foundWords.Count < LISTSIZE)
+            int count = FindCount(word);
+            if (count > 0)
                 {
-                    foundWords.Add(new KeyValuePair<string, int>(word, count));
+                    foundWords.Add((word,count).ToTuple());
                 }
-                else
-                {
-                    foundWords = foundWords.OrderByDescending(kvp => kvp.Value).ToList();
-                    if(foundWords.Last().Value < count)
-                    {
-                        foundWords.Remove(foundWords.Last());
-                        foundWords.Add(new KeyValuePair<string, int>(word, count));
-                    }
-                }
-            }
-            return from kvp in foundWords select kvp.Key;
+            });
+
+            return foundWords.ToList();
         }
 
         /// <summary>

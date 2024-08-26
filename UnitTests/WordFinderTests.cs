@@ -1,13 +1,13 @@
 ﻿using Xunit;
 
-namespace DeveloperChallengeApp
+namespace DeveloperChallengeApp.UnitTests
 {
     /// <summary>
     /// This is just a small series of unit tests used to help me ensure that all aspects of the functionality were being accounted for and met.
     /// </summary>
     public class WordFinderTests
     {
-        WordFinder testInstance1 = new WordFinder(new List<string>() { "wordfinderuniTTesT", "wordfinderunittest", "wordFinderunittest", "wordfinderunittest"});
+        WordFinder testInstance1 = new WordFinder(new List<string>() { "wordfinderuniTTesT", "wordfinderunittest", "wordFinderunittest", "wordfinderunittest" });
 
         [Fact]
         public void ShouldFindCorrectWords()
@@ -41,7 +41,7 @@ namespace DeveloperChallengeApp
             WordFinder wordFinder = testInstance1;
 
             // Act
-            List<string> result = new List<string>() { "test", "ttt", "dd"};
+            List<string> result = new List<string>() { "test", "ttt", "dd" };
             List<string> output = wordFinder.Find(new List<string> { "test", "test", "Test", "ttt", "dd" }).ToList();
             // Assert
             Assert.True(result.All(output.Contains) && result.Count == output.Count);
@@ -54,7 +54,7 @@ namespace DeveloperChallengeApp
             WordFinder wordFinder = testInstance1;
 
             // Act
-            List<string> result = new List<string>() { "test", "ttt", "dd", "wo", "rd", "ww", "ff", "dddd", "finder", "tt"};
+            List<string> result = new List<string>() { "test", "ttt", "dd", "wo", "rd", "ww", "ff", "dddd", "finder", "tt" };
             List<string> output = wordFinder.Find(new List<string> { "test", "ttt", "dd", "wo", "rd", "ww", "ff", "dddd", "ffff", "finder", "tt", "uuuu" }).ToList();
             // Assert
             Assert.True(result.All(output.Contains) && result.Count == output.Count);
